@@ -1,24 +1,33 @@
 
 package com.example.ucs067.studentmanagement;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "students")
 public class Student {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String name;
+
     private String email;
 
-    // Default constructor
     public Student() {
     }
 
-    // Parameterized constructor
     public Student(int id, String name, String email) {
         this.id = id;
         this.name = name;
         this.email = email;
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
