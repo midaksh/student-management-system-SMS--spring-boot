@@ -2,54 +2,53 @@
 package com.example.ucs067.studentmanagement.controller;
 
 import com.example.ucs067.studentmanagement.Student;
+import com.example.ucs067.studentmanagement.repository.StudentRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/students")
 public class StudentController {
 
-    // In-memory student storage
-    private final ArrayList<Student> students = new ArrayList<>();
+    private final StudentRepository studentRepository;
 
-    // Constructor: Add some initial students
-    public StudentController() {
-        students.add(new Student(1, "Midaksh", "midaksh@example.com"));
-        students.add(new Student(2, "Aahan", "aahan@example.com"));
-        students.add(new Student(3, "Azam", "azam@example.com"));
+    public StudentController(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
     }
 
     // GET: Retrieve all students
     @GetMapping
-    public ResponseEntity<ArrayList<Student>> getAllStudents() {
-        return ResponseEntity.ok(students);
+    public ResponseEntity<List<Student>> getAllStudents() {
+
+        return ResponseEntity.ok(studentRepository.findAll());
     }
 
     // POST: Add a new student
     @PostMapping
-    public ResponseEntity<Student> addStudent(@RequestBody Student student) {
-        students.add(student);
+    public ResponseEntity<Student> addStudent(
+            @RequestBody Student student) {
+
+        student.setId(0);
+
+        Student savedStudent = studentRepository.save(student);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(student);
+                .body(savedStudent);
     }
 
     // GET: Retrieve student by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudentById(@PathVariable int id) {
+    public ResponseEntity<Student> getStudentById(
+            @PathVariable int id) {
 
-        for (Student student : students) {
-            if (student.getId() == id) {
-                return ResponseEntity.ok(student);
-            }
-        }
-
-        return ResponseEntity.notFound().build();
+        return studentRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // PUT: Update student
@@ -58,29 +57,31 @@ public class StudentController {
             @PathVariable int id,
             @RequestBody Student updatedStudent) {
 
-        for (Student student : students) {
-            if (student.getId() == id) {
-                student.setName(updatedStudent.getName());
-                student.setEmail(updatedStudent.getEmail());
+        return studentRepository.findById(id)
+                .map(student -> {
 
-                return ResponseEntity.ok(student);
-            }
-        }
+                    student.setName(updatedStudent.getName());
+                    student.setEmail(updatedStudent.getEmail());
 
-        return ResponseEntity.notFound().build();
+                    Student savedStudent =
+                            studentRepository.save(student);
+
+                    return ResponseEntity.ok(savedStudent);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // DELETE: Delete student
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStudent(@PathVariable int id) {
+    public ResponseEntity<Void> deleteStudent(
+            @PathVariable int id) {
 
-        for (Student student : students) {
-            if (student.getId() == id) {
-                students.remove(student);
-                return ResponseEntity.noContent().build();
-            }
+        if (!studentRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.notFound().build();
+        studentRepository.deleteById(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

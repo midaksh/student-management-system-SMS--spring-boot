@@ -201,11 +201,29 @@ curl -i http://localhost:8081/students/99
 
 The expected response is `404 Not Found`.
 
+## MySQL Integration using Spring Data JPA
+
+### Objective
+Integrate MySQL with the Student Management System using Spring Data JPA and Hibernate to provide persistent storage for student records.
+
+### Technologies Used
+- Hibernate ORM
+- MySQL 9.7.4
+
+### Implementation
+
+1. Created a MySQL database named `student_management`.
+2. Configured the database connection through `application.properties`.
+3. Converted the Student class into a JPA Entity using `@Entity`, `@Table`, `@Id`, and `@GeneratedValue`.
+4. Created `StudentRepository` by extending `JpaRepository<Student, Integer>`.
+5. Updated `StudentController` to perform CRUD operations through the repository.
+6. Used Hibernate to automatically create the `students` table.
+7. Configured the database password through an `.env` variable.
+
 ## Future Enhancements
 
 The project will be extended through the following experiments:
 
-- **Experiment 4:** MySQL integration using Spring Data JPA.
 - **Experiment 5:** Derived queries, pagination, and sorting.
 - **Experiment 6:** Student-Course entity relationships.
 - **Experiment 7:** Input validation and global exception handling.
