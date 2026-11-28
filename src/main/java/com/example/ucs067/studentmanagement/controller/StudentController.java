@@ -4,6 +4,8 @@ package com.example.ucs067.studentmanagement.controller;
 import com.example.ucs067.studentmanagement.Student;
 import com.example.ucs067.studentmanagement.repository.StudentRepository;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +35,7 @@ public class StudentController {
 
     // POST: Add a new student
     @PostMapping
-    public ResponseEntity<?> addStudent(@RequestBody Student student) {
+    public ResponseEntity<?> addStudent(@Valid @RequestBody Student student) {
 
         if (studentRepository.existsByEmail(student.getEmail())) {
             return ResponseEntity
@@ -60,30 +62,30 @@ public class StudentController {
     }
 
     // PUT: Update student details
-   @PutMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> updateStudent(
-        @PathVariable int id,
-        @RequestBody Student updatedStudent) {
+            @PathVariable int id,
+            @Valid @RequestBody Student updatedStudent) {
 
-    return studentRepository.findById(id)
-            .map(student -> {
+        return studentRepository.findById(id)
+                .map(student -> {
 
-                if (!student.getEmail().equalsIgnoreCase(updatedStudent.getEmail())
-                        && studentRepository.existsByEmail(updatedStudent.getEmail())) {
+                    if (!student.getEmail().equalsIgnoreCase(updatedStudent.getEmail())
+                            && studentRepository.existsByEmail(updatedStudent.getEmail())) {
 
-                    return ResponseEntity
-                            .status(HttpStatus.CONFLICT)
-                            .body("A student with this email already exists.");
-                }
+                        return ResponseEntity
+                                .status(HttpStatus.CONFLICT)
+                                .body("A student with this email already exists.");
+                    }
 
-                student.setName(updatedStudent.getName());
-                student.setEmail(updatedStudent.getEmail());
+                    student.setName(updatedStudent.getName());
+                    student.setEmail(updatedStudent.getEmail());
 
-                Student savedStudent = studentRepository.save(student);
+                    Student savedStudent = studentRepository.save(student);
 
-                return ResponseEntity.ok(savedStudent);
-            })
-            .orElse(ResponseEntity.notFound().build());
+                    return ResponseEntity.ok(savedStudent);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     // DELETE: Delete student by ID

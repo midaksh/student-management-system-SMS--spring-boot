@@ -14,6 +14,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 @Entity
 @Table(name = "students")
 public class Student {
@@ -22,8 +25,11 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotBlank(message = "Student name is required")
     private String name;
 
+    @NotBlank(message = "Student email is required")
+    @Email(message = "Please provide a valid email address")
     private String email;
 
     @OneToMany(
