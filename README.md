@@ -15,36 +15,24 @@ A RESTful Student Management System built using **Java, Spring Boot, Spring Data
 - **API Testing:** Postman, cURL
 - **Version Control:** Git and GitHub
 
-## Project Structure
+## Application Architecture
 
-```text
-student-management/
-├── src/
-│   ├── main/
-│   │   ├── java/com/example/ucs067/studentmanagement/
-│   │   │   ├── config/
-│   │   │   │   └── SecurityConfig.java
-│   │   │   ├── controller/
-│   │   │   │   ├── StudentController.java
-│   │   │   │   └── CourseController.java
-│   │   │   ├── exception/
-│   │   │   │   └── GlobalExceptionHandler.java
-│   │   │   ├── repository/
-│   │   │   │   ├── StudentRepository.java
-│   │   │   │   └── CourseRepository.java
-│   │   │   ├── Student.java
-│   │   │   ├── Course.java
-│   │   │   └── StudentManagementApplication.java
-│   │   └── resources/
-│   │       └── application.properties
-│   └── test/
-│       └── java/com/example/ucs067/studentmanagement/
-│           └── StudentManagementApplicationTests.java
-├── pom.xml
-└── README.md
+The following diagram illustrates how the different components of the application interact:
+
+```mermaid
+flowchart LR
+    A["Client<br/>Postman / cURL"] --> B["SecurityConfig<br/>Authentication & Authorization"]
+    B --> C["Controllers<br/>StudentController<br/>CourseController"]
+    C --> D["Repositories<br/>StudentRepository<br/>CourseRepository"]
+    D --> E["Spring Data JPA / Hibernate"]
+    E --> F[("MySQL Database")]
+
+    C --> G["GlobalExceptionHandler<br/>Exception Handling"]
+    C --> H["Student & Course<br/>Entities"]
+    H --> E
 ```
 
-## Setup and Installation
+## Setup and Initial Starting
 
 ### 1. Clone the Repository
 
@@ -61,15 +49,26 @@ Create the database:
 CREATE DATABASE student_management;
 ```
 
+Make sure your MySQL server is running.
+
 ### 3. Configure Environment Variables
 
-The application uses an environment variable for the MySQL password.
+The application uses an environment variable for the MySQL Database Password.
 
-In macOS Terminal:
+Create your local `.env` file using the example:
 
 ```bash
-export DB_PASSWORD='your_mysql_password'
+cp .env.example .env
 ```
+
+Update `.env` with your MySQL root password:
+
+```env
+DB_PASSWORD=your_mysql_password
+```
+
+**Note:** `.env` is not automatically loaded by Spring Boot. If using the `run.sh` script configured to load `.env`, start the application using `./run.sh`.
+
 
 ### 4. Configure Application Properties
 
@@ -77,15 +76,20 @@ Update `src/main/resources/application.properties`:
 
 ```properties
 spring.application.name=student-management
+
 server.port=8081
 
 spring.datasource.url=jdbc:mysql://localhost:3306/student_management
 spring.datasource.username=root
 spring.datasource.password=${DB_PASSWORD}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
+
+spring.security.user.name=Admin
+spring.security.user.password=admin123
 ```
 
 ### 5. Run the Application
@@ -93,68 +97,63 @@ spring.jpa.properties.hibernate.format_sql=true
 Start the MySQL server, then execute:
 
 ```bash
-./mvnw spring-boot:run
+./run.sh
 ```
 
 The application will run at:
 
 `http://localhost:8081`
 
+## File Responsibilities
+
+| File | Function |
+|---|---|
+| `StudentManagementApplication.java` | Main Spring Boot application entry point. |
+| `Student.java` | Student entity and database mapping. |
+| `Course.java` | Course entity and relationship with Student. |
+| `StudentController.java` | Handles student REST API requests. |
+| `CourseController.java` | Handles course REST API requests. |
+| `StudentRepository.java` | Database operations and student queries. |
+| `CourseRepository.java` | Database operations for courses. |
+| `SecurityConfig.java` | Configures HTTP Basic authentication and endpoint access. |
+| `GlobalExceptionHandler.java` | Centralized exception and validation error handling. |
+| `StudentManagementApplicationTests.java` | Automated application and API tests. |
+| `.env.example` | Example environment variable configuration. |
+
 ## Experiments Completed
 
 ### 1: Spring Boot Project Setup
-- Created a Spring Boot project using Maven.
-- Understood the project structure and application entry point.
+- Created a Maven-based Spring Boot project and understood its structure.
 
 ### 2: First REST Endpoint
-- Created a REST controller.
-- Implemented a basic `/hello` endpoint.
-- Understood `@RestController`, `@GetMapping`, and request mappings.
+- Created a `/hello` endpoint using Spring REST annotations.
 
 ### 3: CRUD Operations Using ArrayList
-- Implemented in-memory student management.
-- Created GET, POST, PUT, and DELETE endpoints.
+- Implemented in-memory student CRUD operations using GET, POST, PUT, and DELETE.
 
 ### 4: MySQL Integration Using Spring Data JPA
-- Connected the Spring Boot application to MySQL.
-- Created the `Student` entity.
-- Implemented `StudentRepository` using `JpaRepository`.
-- Performed persistent CRUD operations.
+- Connected MySQL and implemented persistent student CRUD operations using JPA.
 
 ### 5: Derived Queries, Pagination and Sorting
-- Implemented Spring Data JPA derived query methods.
-- Added student search functionality.
-- Implemented pagination and sorting.
-
-Features:
-- Search students by name.
-- Search students using partial name matches.
-- Search students by email.
-- Retrieve paginated student records.
-- Retrieve sorted student records.
+- Implemented student search, derived queries, pagination, and sorting.
 
 ### 6: Student–Course One-to-Many Relationship
-- Implemented a one-to-many relationship between Student and Course.
-- Used `@OneToMany` and `@ManyToOne`.
-- Prevented duplicate student emails.
-- Prevented duplicate course codes for the same student.
-- Added database-level unique constraints.
+- Established a Student–Course relationship and added unique database constraints.
 
 ### 7: Input Validation and Global Exception Handling
-- Implemented Jakarta Bean Validation.
-- Used `@NotBlank` to validate student names and emails.
-- Used `@Email` to validate email formats.
-- Applied `@Valid` to POST and PUT request bodies.
-- Created a centralized exception handler using `@RestControllerAdvice`.
-- Handled validation errors using `@ExceptionHandler`.
+- Implemented Jakarta validation and centralized exception handling.
 
 ### 8: REST API Testing and Automated Testing
-- Tested invalid request payloads and validation responses.
-- Implemented automated tests using `JUnit 5` and `MockMvc`
+- Tested APIs using cURL and implemented automated JUnit and MockMvc tests.
+
+### 9: Spring Security
+- Implemented HTTP Basic Authentication, public and protected endpoints, and fixed login credentials.
 
 ## API Endpoints
 
 Base URL: `http://localhost:8081`
+
+**Authentication:** All endpoints except `GET /hello` require HTTP Basic Authentication.
 
 ### Student APIs
 
@@ -246,6 +245,52 @@ Expected response: `400 Bad Request`
 }
 ```
 
+## Spring Security
+
+The application uses Spring Security with HTTP Basic Authentication.
+
+| Configuration | Value |
+|---|---|
+| Authentication Type | HTTP Basic |
+| Username | `Admin` |
+| Password | `admin123` |
+| Public Endpoint | `GET /hello` |
+| Protected Endpoints | All other endpoints |
+
+### Test Authentication
+
+Public endpoint:
+
+```bash
+curl -i http://localhost:8081/hello
+```
+
+Expected: `200 OK`
+
+Access a protected endpoint without credentials:
+
+```bash
+curl -i http://localhost:8081/students
+```
+
+Expected: `401 Unauthorized`
+
+Access with valid credentials:
+
+```bash
+curl -i -u Admin:admin123 http://localhost:8081/students
+```
+
+Expected: `200 OK`
+
+Access with incorrect credentials:
+
+```bash
+curl -i -u Admin:wrong123 http://localhost:8081/students
+```
+
+Expected: `401 Unauthorized`
+
 ## HTTP Status Codes
 
 | Status Code | Meaning | Usage |
@@ -254,6 +299,7 @@ Expected response: `400 Bad Request`
 | 201 | Created | Student successfully created |
 | 204 | No Content | Successful deletion |
 | 400 | Bad Request | Invalid request or validation failure |
+| 401 | Unauthorized | Missing or invalid authentication |
 | 404 | Not Found | Requested resource does not exist |
 | 409 | Conflict | Duplicate student email or course code |
 
@@ -303,7 +349,7 @@ Each student can have multiple courses, while each course belongs to one student
 
 ## Current Project Status
 
-- [x] Experiments 1–8 completed
+- [x] Experiments 1–9 completed
 - [x] REST API CRUD operations
 - [x] MySQL database integration
 - [x] Spring Data JPA
@@ -313,7 +359,7 @@ Each student can have multiple courses, while each course belongs to one student
 - [x] Global exception handling
 - [x] cURL API testing
 - [x] JUnit and MockMvc automated testing
-- [ ] Experiment 9: Spring Security Basic Authentication
+- [x] Spring Security Basic Authentication
 
 ---
 
