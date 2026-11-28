@@ -275,10 +275,33 @@ The relationship is implemented using:
 }
 ```
 
+## Input Validation and Global Exception Handling
+
+### Objective
+To implement input validation and centralized exception handling in the Student Management REST API using Spring Boot..
+
+### Implementation
+1. Added validation annotations to the Student entity.
+2. Applied `@Valid` to POST and PUT request bodies in StudentController.
+3. Created GlobalExceptionHandler.java inside the exception package.
+4. Configured centralized handling of validation errors with field-specific messages.
+5. Preserved existing duplicate-email checks and CRUD functionality.
+
+### Testing
+Tested using Postman:
+- Empty student name.
+- Empty student email.
+- Invalid email format.
+- Valid student creation.
+- Duplicate email during creation.
+- Invalid student updates.
+- Successful student updates.
+- Duplicate email during updates.
+- Verified invalid updates do not modify existing database records.
+
 ## Future Enhancements
 
 The project will be extended through the following experiments:
 
-- **Experiment 7:** Input validation and global exception handling.
 - **Experiment 8:** REST API testing and automated testing using JUnit and MockMvc.
 - **Experiment 9:** Authentication and authorization using Spring Security.
