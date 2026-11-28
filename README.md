@@ -220,7 +220,7 @@ Integrate MySQL with the Student Management System using Spring Data JPA and Hib
 6. Used Hibernate to automatically create the `students` table.
 7. Configured the database password through an `.env` variable.
 
-## Advanced Spring Data JPA
+## Advanced Spring Data JPA derived queries
 
 ### Objective
 Implement advanced database operations using Spring Data JPA, including derived query methods, pagination, and sorting.
@@ -243,13 +243,42 @@ Implement advanced database operations using Spring Data JPA, including derived 
 | GET | `/students/paginated?page=0&size=5` | Retrieve paginated students |
 | GET | `/students/sorted` | Retrieve students sorted by name |
 
+## One-to-Many Relationship Using Spring Data JPA
+
+### Objective
+To implement a One-to-Many relationship between Student and Course entities using Spring Data JPA and Hibernate.
+
+The relationship is implemented using:
+- `@OneToMany` in the Student entity.
+- `@ManyToOne` in the Course entity.
+- `@JoinColumn(name = "student_id")` to establish the foreign key relationship.
+- `@JsonManagedReference` and `@JsonBackReference` to prevent infinite recursion during JSON serialization.
+
+### API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/courses` | Retrieve all courses |
+| GET | `/courses/{id}` | Retrieve a course by ID |
+| POST | `/courses/student/{studentId}` | Add a course to a student |
+| GET | `/courses/student/{studentId}` | Retrieve courses of a student |
+| DELETE | `/courses/{id}` | Delete a course |
+
+### Sample Request
+
+**POST** `/courses/student/1`
+
+```json
+{
+  "courseName": "Data Structures and Algorithms",
+  "courseCode": "CSE201"
+}
+```
 
 ## Future Enhancements
 
 The project will be extended through the following experiments:
 
-- **Experiment 5:** Derived queries, pagination, and sorting.
-- **Experiment 6:** Student-Course entity relationships.
 - **Experiment 7:** Input validation and global exception handling.
 - **Experiment 8:** REST API testing and automated testing using JUnit and MockMvc.
 - **Experiment 9:** Authentication and authorization using Spring Security.
