@@ -220,6 +220,30 @@ Integrate MySQL with the Student Management System using Spring Data JPA and Hib
 6. Used Hibernate to automatically create the `students` table.
 7. Configured the database password through an `.env` variable.
 
+## Advanced Spring Data JPA
+
+### Objective
+Implement advanced database operations using Spring Data JPA, including derived query methods, pagination, and sorting.
+
+### Implementation
+1. Added derived query methods to `StudentRepository`.
+2. Implemented exact name search using `findByName()`.
+3. Implemented partial name search using `findByNameContaining()`.
+4. Implemented email search using `findByEmail()`.
+5. Implemented pagination using `Page`, `Pageable`, and `PageRequest`.
+6. Implemented sorting using Spring Data JPA's `Sort` class.
+
+### API Endpoints
+
+| HTTP Method | Endpoint | Description |
+|---|---|---|
+| GET | `/students/search/name?name=Midaksh` | Search by exact name |
+| GET | `/students/search?keyword=ak` | Search by partial name |
+| GET | `/students/search/email?email=midaksh@example.com` | Search by email |
+| GET | `/students/paginated?page=0&size=5` | Retrieve paginated students |
+| GET | `/students/sorted` | Retrieve students sorted by name |
+
+
 ## Future Enhancements
 
 The project will be extended through the following experiments:
