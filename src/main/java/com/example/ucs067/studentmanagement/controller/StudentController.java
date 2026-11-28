@@ -25,10 +25,6 @@ public class StudentController {
         this.studentRepository = studentRepository;
     }
 
-    // ==========================================
-    // CRUD OPERATIONS
-    // ==========================================
-
     // GET: Retrieve all students
     @GetMapping
     public ResponseEntity<List<Student>> getAllStudents() {
@@ -37,8 +33,15 @@ public class StudentController {
 
     // POST: Add a new student
     @PostMapping
-    public ResponseEntity<Student> addStudent(@RequestBody Student student) {
-        student.setId(0);
+    public ResponseEntity<?> addStudent(@RequestBody Student student) {
+
+        if (studentRepository.existsByEmail(student.getEmail())) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body("A student with this email already exists.");
+        }
+
+        student.setId(null);
 
         Student savedStudent = studentRepository.save(student);
 
@@ -50,31 +53,40 @@ public class StudentController {
     // GET: Retrieve student by ID
     @GetMapping("/{id}")
     public ResponseEntity<Student> getStudentById(@PathVariable int id) {
+
         return studentRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // PUT: Update student
-    @PutMapping("/{id}")
-    public ResponseEntity<Student> updateStudent(
-            @PathVariable int id,
-            @RequestBody Student updatedStudent) {
+    // PUT: Update student details
+   @PutMapping("/{id}")
+    public ResponseEntity<?> updateStudent(
+        @PathVariable int id,
+        @RequestBody Student updatedStudent) {
 
-        return studentRepository.findById(id)
-                .map(student -> {
-                    student.setName(updatedStudent.getName());
-                    student.setEmail(updatedStudent.getEmail());
+    return studentRepository.findById(id)
+            .map(student -> {
 
-                    Student savedStudent =
-                            studentRepository.save(student);
+                if (!student.getEmail().equalsIgnoreCase(updatedStudent.getEmail())
+                        && studentRepository.existsByEmail(updatedStudent.getEmail())) {
 
-                    return ResponseEntity.ok(savedStudent);
-                })
-                .orElse(ResponseEntity.notFound().build());
+                    return ResponseEntity
+                            .status(HttpStatus.CONFLICT)
+                            .body("A student with this email already exists.");
+                }
+
+                student.setName(updatedStudent.getName());
+                student.setEmail(updatedStudent.getEmail());
+
+                Student savedStudent = studentRepository.save(student);
+
+                return ResponseEntity.ok(savedStudent);
+            })
+            .orElse(ResponseEntity.notFound().build());
     }
 
-    // DELETE: Delete student
+    // DELETE: Delete student by ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudent(@PathVariable int id) {
 
@@ -87,21 +99,15 @@ public class StudentController {
         return ResponseEntity.noContent().build();
     }
 
-    // ==========================================
-    // SEARCH OPERATIONS
-    // ==========================================
-
-    // Find students by exact name
+    // GET: Search students by exact name
     @GetMapping("/search/name")
     public ResponseEntity<List<Student>> searchByName(
             @RequestParam String name) {
 
-        return ResponseEntity.ok(
-                studentRepository.findByName(name)
-        );
+        return ResponseEntity.ok(studentRepository.findByName(name));
     }
 
-    // Find students by partial name
+    // GET: Search students by name keyword
     @GetMapping("/search")
     public ResponseEntity<List<Student>> searchByNameContaining(
             @RequestParam String keyword) {
@@ -111,21 +117,15 @@ public class StudentController {
         );
     }
 
-    // Find students by exact email
+    // GET: Search students by email
     @GetMapping("/search/email")
     public ResponseEntity<List<Student>> searchByEmail(
             @RequestParam String email) {
 
-        return ResponseEntity.ok(
-                studentRepository.findByEmail(email)
-        );
+        return ResponseEntity.ok(studentRepository.findByEmail(email));
     }
 
-    // ==========================================
-    // PAGINATION
-    // ==========================================
-
-    // Retrieve students page by page
+    // GET: Retrieve students with pagination
     @GetMapping("/paginated")
     public ResponseEntity<Page<Student>> getPaginatedStudents(
             @RequestParam(defaultValue = "0") int page,
@@ -133,16 +133,10 @@ public class StudentController {
 
         Pageable pageable = PageRequest.of(page, size);
 
-        return ResponseEntity.ok(
-                studentRepository.findAll(pageable)
-        );
+        return ResponseEntity.ok(studentRepository.findAll(pageable));
     }
 
-    // ==========================================
-    // SORTING
-    // ==========================================
-
-    // Retrieve students sorted alphabetically by name
+    // GET: Retrieve students sorted by name
     @GetMapping("/sorted")
     public ResponseEntity<List<Student>> getSortedStudents() {
 

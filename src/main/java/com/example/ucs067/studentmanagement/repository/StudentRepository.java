@@ -8,12 +8,15 @@ import java.util.List;
 
 public interface StudentRepository extends JpaRepository<Student, Integer> {
 
-    // Find students by exact name
+    // Check whether a student with this email already exists
+    boolean existsByEmail(String email);
+
+    // Search students by exact name
     List<Student> findByName(String name);
 
-    // Find students whose names contain a keyword
+    // Search students whose names contain a keyword
     List<Student> findByNameContaining(String keyword);
 
-    // Find students by exact email
+    // Search students by exact email
     List<Student> findByEmail(String email);
 }
